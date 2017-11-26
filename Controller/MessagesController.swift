@@ -122,8 +122,8 @@ class MessagesController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let showContentController = ShowContentController()
-        showContentController.content = publishArticles[indexPath.row].content
-        present(showContentController, animated: true, completion: nil)
+        showContentController.article = publishArticles[indexPath.row]
+        navigationController?.pushViewController(showContentController, animated: true)
     }
     
 }

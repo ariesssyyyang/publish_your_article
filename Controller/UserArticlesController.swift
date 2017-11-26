@@ -11,16 +11,26 @@ import Firebase
 
 class UserArticlesController: UITableViewController {
 
+    let authorNavigationBar: UINavigationBar = {
+        let navBar = UINavigationBar()
+        let cancelImage = UIImage(named: "icon-cross")
+        let navItem = UINavigationItem(title: "author")
+        navItem.leftBarButtonItem = UIBarButtonItem(image: cancelImage, style: .plain, target: self, action: #selector(cancel))
+        return navBar
+    }()
+
+    @objc func cancel() {
+        dismiss(animated: true, completion: nil)
+    }
+
     var articles: [Article] = []
     var articleKeys: [String] = []
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(handleLogout))
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(sendNew))
         
         checkLoggedIn()
-        
+        view.addSubview(authorNavigationBar)
+        setUpAuthorNavBar()
         tableView.register(PublishArticleCell.self, forCellReuseIdentifier: "articleCell")
 
         Database.database().reference().observe(.value) { (snapshot) in
@@ -53,6 +63,11 @@ class UserArticlesController: UITableViewController {
                 }
             }
         }
+    }
+
+    func setUpAuthorNavBar() {
+        
+        authorNavigationBar.it
     }
 
     @objc func sendNew() {
