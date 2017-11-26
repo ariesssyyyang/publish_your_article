@@ -18,6 +18,7 @@
 		61F8EE473E3684A2185424C1 /* Pods_chatTogther.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0328D0689E1D637F772D738B /* Pods_chatTogther.framework */; };
 		7FABFA191FCAAA3A0010A10F /* PublishArticleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FABFA181FCAAA3A0010A10F /* PublishArticleCell.swift */; };
 		7FABFA1D1FCAB2420010A10F /* UserArticlesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FABFA1C1FCAB2420010A10F /* UserArticlesController.swift */; };
+		7FABFA1F1FCB2FAB0010A10F /* ShowContentController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FABFA1E1FCB2FAB0010A10F /* ShowContentController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,6 +37,7 @@
 		34DFC0E25CE0527FFF05ED1A /* Pods-chatTogther.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-chatTogther.release.xcconfig"; path = "Pods/Target Support Files/Pods-chatTogther/Pods-chatTogther.release.xcconfig"; sourceTree = "<group>"; };
 		7FABFA181FCAAA3A0010A10F /* PublishArticleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublishArticleCell.swift; sourceTree = "<group>"; };
 		7FABFA1C1FCAB2420010A10F /* UserArticlesController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserArticlesController.swift; sourceTree = "<group>"; };
+		7FABFA1E1FCB2FAB0010A10F /* ShowContentController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowContentController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,6 +90,7 @@
 				7FABFA171FCAAA0C0010A10F /* cell */,
 				1FE438651FC7FA43003473D2 /* LoginController.swift */,
 				1FE438541FC7F7F0003473D2 /* MessagesController.swift */,
+				7FABFA1E1FCB2FAB0010A10F /* ShowContentController.swift */,
 				1F4C86221FC81B27008F6812 /* PublishViewController.swift */,
 				7FABFA1C1FCAB2420010A10F /* UserArticlesController.swift */,
 			);
@@ -261,6 +264,7 @@
 				7FABFA1D1FCAB2420010A10F /* UserArticlesController.swift in Sources */,
 				1FE438531FC7F7F0003473D2 /* AppDelegate.swift in Sources */,
 				1F4C86231FC81B27008F6812 /* PublishViewController.swift in Sources */,
+				7FABFA1F1FCB2FAB0010A10F /* ShowContentController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

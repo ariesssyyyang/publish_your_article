@@ -13,7 +13,7 @@ struct Article {
     let id: String
     let title: String
     let content: String
-    let date: Date
+    let date: String
     let author: String
 }
 
@@ -52,14 +52,10 @@ class MessagesController: UITableViewController {
                                         let title = theArticle["title"],
                                         let content = theArticle["content"],
                                         let date = theArticle["date"]
-                                        else { return }
+                                    else { return }
                                     
-                                    let dateFormatter = DateFormatter()
-                                    dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-                                    dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
-                                    guard let trueDate = dateFormatter.date(from: date) else { return }
+                                    self.publishArticles.insert(Article(id: key, title: title, content: content, date: date, author: firstname + " " + lastname), at: 0)
                                     self.publishArticles.sort() { $0.date > $1.date }
-                                    self.publishArticles.insert(Article(id: key, title: title, content: content, date: trueDate, author: firstname + " " + lastname), at: 0)
                                 }
                             }
                         }
@@ -114,16 +110,21 @@ class MessagesController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return publishArticleKeys.count
+        return publishArticles.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
         cell.textLabel?.text = publishArticles[indexPath.row].title
-        cell.detailTextLabel?.text = publishArticles[indexPath.row].author + "   " + "\(publishArticles[indexPath.row].date)"
+        cell.detailTextLabel?.text = publishArticles[indexPath.row].author + "   " + publishArticles[indexPath.row].date
         return cell
     }
 
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let showContentController = ShowContentController()
+        showContentController.content = publishArticles[indexPath.row].content
+        present(showContentController, animated: true, completion: nil)
+    }
     
 }
 

@@ -44,15 +44,8 @@ class UserArticlesController: UITableViewController {
                                 let date = theArticle["date"]
                             else { return }
                             
-                            let dateFormatter = DateFormatter()
-                            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-                            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
-                            guard let trueDate = dateFormatter.date(from: date)
-                            else {
-                                return
-                            }
+                            self.articles.insert(Article(id: key, title: title, content: content, date: date, author: firstname + " " + lastname), at: 0)
                             self.articles.sort() { $0.date > $1.date }
-                            self.articles.insert(Article(id: key, title: title, content: content, date: trueDate, author: firstname + " " + lastname), at: 0)
                         }
                         self.tableView.reloadData()
                         
@@ -101,13 +94,13 @@ class UserArticlesController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return articleKeys.count
+        return articles.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
         cell.textLabel?.text = articles[indexPath.row].title
-        cell.detailTextLabel?.text = articles[indexPath.row].author + "   " + "\(articles[indexPath.row].date)"
+        cell.detailTextLabel?.text = articles[indexPath.row].author + "   " + articles[indexPath.row].date
         return cell
     }
 }
