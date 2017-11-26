@@ -15,6 +15,7 @@ struct Article {
     let content: String
     let date: String
     let author: String
+    let uid: String
 }
 
 class MessagesController: UITableViewController {
@@ -54,7 +55,7 @@ class MessagesController: UITableViewController {
                                         let date = theArticle["date"]
                                     else { return }
                                     
-                                    self.publishArticles.insert(Article(id: key, title: title, content: content, date: date, author: firstname + " " + lastname), at: 0)
+                                    self.publishArticles.insert(Article(id: key, title: title, content: content, date: date, author: firstname + " " + lastname, uid: uid), at: 0)
                                     self.publishArticles.sort() { $0.date > $1.date }
                                 }
                             }

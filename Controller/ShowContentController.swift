@@ -10,7 +10,7 @@ import UIKit
 
 class ShowContentController: UIViewController {
 
-    var article: Article = Article(id: " ", title: " ", content: " ", date: " ", author: " ")
+    var article: Article = Article(id: " ", title: " ", content: " ", date: " ", author: " ", uid: " ")
     
     let contentView: UIView = {
         let view = UIView()
@@ -38,9 +38,9 @@ class ShowContentController: UIViewController {
         let button = UIButton(type: .system)
         button.backgroundColor = UIColor(red: 80/255, green: 101/255, blue: 161/255, alpha: 1)
         button.setTitle("by:", for: .normal)
-        button.frame = CGRect(x: 250, y: 80, width: 80, height: 50)
+        button.frame = CGRect(x: 200, y: 30, width: 80, height: 30)
         button.setTitleColor(UIColor.white, for: .normal)
-        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 12)
         button.addTarget(self, action: #selector(authorAtcs), for: .touchUpInside)
         return button
     }()
@@ -60,8 +60,9 @@ class ShowContentController: UIViewController {
 
     @objc func authorAtcs() {
         let authorArticleController = UserArticlesController()
-        
-        present(authorArticleController, animated: true, completion: nil)
+        authorArticleController.authorUid = article.uid
+        authorArticleController.author = article.author
+        navigationController?.pushViewController(authorArticleController, animated: true)
     }
 
     func setUpContentView() {
@@ -78,6 +79,7 @@ class ShowContentController: UIViewController {
         contentLabel.text = article.content
 
         contentView.addSubview(authorButton)
-        
+        authorButton.setTitle(article.author, for: .normal)
+        authorButton.titleLabel?.textAlignment = .center
     }
 }
