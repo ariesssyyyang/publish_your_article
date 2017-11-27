@@ -13,8 +13,9 @@ struct Article {
     let id: String
     let title: String
     let content: String
-    let date: Date
+    let date: String
     let author: String
+    let uid: String
 }
 
 class MessagesController: UITableViewController {
@@ -22,12 +23,14 @@ class MessagesController: UITableViewController {
     var publishArticles: [Article] = []
     var publishArticleKeys: [String] = []
     var userIDs: [String] = []
+    var userLikes: [String: [String]] = [:]
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupTableCell()
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(handleLogout))
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(sendNew))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(publishAnArticle))
         
         checkLoggedIn()
 
@@ -44,6 +47,10 @@ class MessagesController: UITableViewController {
                                 let firstname = userInfo["firstName"] as? String,
                                 let lastname = userInfo["lastName"] as? String,
                                 let articles = userInfo["articles"] as? NSDictionary {
+                                    if let likes = userInfo["postLikes"] as? [String: Bool] {
+                                        let likeId = Array(likes.keys)
+                                        self.userLikes.updateValue(likeId, forKey: uid)
+                                    }
                                 guard let keys = articles.allKeys as? [String] else { return }
                                 self.publishArticleKeys = keys
                                 for key in keys {
@@ -52,14 +59,10 @@ class MessagesController: UITableViewController {
                                         let title = theArticle["title"],
                                         let content = theArticle["content"],
                                         let date = theArticle["date"]
-                                        else { return }
+                                    else { return }
                                     
-                                    let dateFormatter = DateFormatter()
-                                    dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-                                    dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
-                                    guard let trueDate = dateFormatter.date(from: date) else { return }
+                                    self.publishArticles.insert(Article(id: key, title: title, content: content, date: date, author: firstname + " " + lastname, uid: uid), at: 0)
                                     self.publishArticles.sort() { $0.date > $1.date }
-                                    self.publishArticles.insert(Article(id: key, title: title, content: content, date: trueDate, author: firstname + " " + lastname), at: 0)
                                 }
                             }
                         }
@@ -71,13 +74,20 @@ class MessagesController: UITableViewController {
  
     }
     
-    override func didMove(toParentViewController parent: UIViewController?) {
-        checkLoggedIn()
+    func setupTableCell() {
+        let nib = UINib(
+            nibName: "PublishArticleCell",
+            bundle: nil
+        )
+        
+        tableView.register(
+            nib,
+            forCellReuseIdentifier: "cell"
+        )
     }
     
-    @objc func sendNew() {
-        let publishViewController = PublishViewController()
-        present(publishViewController, animated: true, completion: nil)
+    override func didMove(toParentViewController parent: UIViewController?) {
+        checkLoggedIn()
     }
     
     func checkLoggedIn() {
@@ -89,7 +99,7 @@ class MessagesController: UITableViewController {
                 if let dictionary = snapshot.value as? [String: Any],
                     let firstName = dictionary["firstName"] as? String,
                     let lastName = dictionary["lastName"] as? String {
-                    self.navigationItem.title = firstName + " " + lastName
+                    self.navigationItem.title = "All Articles"
                 }
             })
         }
@@ -107,6 +117,17 @@ class MessagesController: UITableViewController {
         present(loginController, animated: true, completion: nil)
     }
 
+    @objc func authorAtcs(_ sender: UIButton) {
+        let authorArticleController = UserArticlesController()
+        authorArticleController.authorUid = publishArticles[sender.tag].uid   
+        navigationController?.pushViewController(authorArticleController, animated: true)
+    }
+    
+    @objc func publishAnArticle() {
+        let publishViewController = PublishViewController()
+        navigationController?.pushViewController(publishViewController, animated: true)
+    }
+
     // MARK: - Table view data source
     
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -114,16 +135,69 @@ class MessagesController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return publishArticleKeys.count
+        return publishArticles.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
-        cell.textLabel?.text = publishArticles[indexPath.row].title
-        cell.detailTextLabel?.text = publishArticles[indexPath.row].author + "   " + "\(publishArticles[indexPath.row].date)"
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: "cell",
+            for: indexPath
+            ) as! PublishArticleCell
+    
+        cell.titleLabel.text = publishArticles[indexPath.row].title
+        cell.contentLabel.text = publishArticles[indexPath.row].content
+        cell.dateLabel.text = "\(publishArticles[indexPath.row].date)"
+
+        cell.authorButton.setTitle("Author: \(publishArticles[indexPath.row].author)", for: .normal)
+        cell.authorButton.setTitle(publishArticles[indexPath.row].author, for: .normal)
+        cell.authorButton.tag = indexPath.row
+        cell.authorButton.addTarget(self, action: #selector(authorAtcs), for: .touchUpInside)
+        
+        let image = UIImage(named: "icon-heart")?.withRenderingMode(.alwaysTemplate)
+        cell.likeButton.setImage(image, for: .normal)
+        if exist(articleId: publishArticles[indexPath.row].id) {
+            cell.likeButton.tintColor = UIColor.red
+        } else {
+            cell.likeButton.tintColor = UIColor.black
+        }
+        cell.likeButton.tag = indexPath.row
+        cell.likeButton.addTarget(self, action: #selector(like), for: .touchUpInside)
+        
         return cell
     }
-
+    
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 150
+    }
+    
+    @objc func like(_ sender: UIButton) {
+        if exist(articleId: publishArticles[sender.tag].id) {
+            sender.tintColor = UIColor.black
+            guard let userid = Auth.auth().currentUser?.uid else { return }
+            let ref = Database.database().reference(fromURL: "https://chattogther.firebaseio.com/")
+            let userReference = ref.child("users").child(userid).child("postLikes").child(publishArticles[sender.tag].id)
+            userReference.removeValue()
+        } else {
+            sender.tintColor = UIColor.red
+            guard let userid = Auth.auth().currentUser?.uid else { return }
+            let ref = Database.database().reference(fromURL: "https://chattogther.firebaseio.com/")
+            let userReference = ref.child("users").child(userid).child("postLikes").child(publishArticles[sender.tag].id)
+            userReference.setValue(true)
+        }
+        
+    }
+    
+    func exist(articleId: String) -> Bool {
+        guard let uid = Auth.auth().currentUser?.uid else {return false}
+        if let userlike = userLikes[uid] {
+            for postId in userlike  {
+                if articleId == postId {
+                    return true
+                }
+            }
+        }
+        return false
+    }
     
 }
 
